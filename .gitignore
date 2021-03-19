@@ -1,1 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
+.idea
+jxc-manager-par.iml
+jxc-admin/target
+jxc-code-generator/target
+jxc-code-generator/jxc-code-generator.iml
