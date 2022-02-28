@@ -17,8 +17,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 @SpringBootConfiguration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -34,6 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private IUserService iUserService;
     @Resource
     private CaptchaCodeFilter captchaCodeFilter;
+    @Resource
+    private DataSource dataSource;
     @Override
     public void configure(WebSecurity web) throws Exception {
     web.ignoring().antMatchers("/css/**","/error/**","/images/**","/js/**","/lib/**");
@@ -59,6 +64,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutSuccessHandler(jxcLogoutSuccessHandler)
                     .deleteCookies("JSESSIONID")
                 .and()
+                .rememberMe()
+                .rememberMeParameter("rememberMe")
+                //保存在浏览器端的cookie的名称，如果不设置默认也是remember-me
+                .rememberMeCookieName("remember-me-cookie")
+                //设置token的有效期，即多长时间内可以免除重复登录，单位是秒。
+                .tokenValiditySeconds(7  * 24 * 60 * 60)
+                //自定义
+                .tokenRepository(persistentTokenRepository())
+                .and()
                     .authorizeRequests().antMatchers("/login","/index","/image").permitAll()
                     .anyRequest().authenticated();
 
@@ -77,6 +91,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder encoder(){
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(){
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+        return tokenRepository;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService()).passwordEncoder(encoder());
