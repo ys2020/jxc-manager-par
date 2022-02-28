@@ -3,6 +3,7 @@ package com.lzj.admin;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * 乐字节  踏实教育 用心服务
@@ -16,5 +17,6 @@ public class JxcAdminApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(JxcAdminApplication.class,args);
+
     }
 }

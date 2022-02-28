@@ -48,6 +48,8 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.5</version>
         </dependency>
+        <!--spring security 组件-->
+
     </dependencies>
 
     <build>
