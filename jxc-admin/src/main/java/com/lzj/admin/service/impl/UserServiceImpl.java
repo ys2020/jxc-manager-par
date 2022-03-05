@@ -6,10 +6,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.lzj.admin.pojo.User;
 import com.lzj.admin.mapper.UserMapper;
+import com.lzj.admin.pojo.UserRole;
 import com.lzj.admin.query.UserQuery;
+import com.lzj.admin.service.IUserRoleService;
 import com.lzj.admin.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lzj.admin.utils.AssertUtil;
+import com.lzj.admin.utils.PageResultUtil;
 import com.lzj.admin.utils.StringUtil;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sun.text.resources.cldr.ti.FormatData_ti_ER;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -37,6 +37,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Resource
     PasswordEncoder passwordEncoder;
+    @Resource
+    private IUserRoleService userRoleService;
     @Override
     public User login(String userName, String password) {
         AssertUtil.isTrue(StringUtil.isEmpty(userName),"用户名不能为空!");
@@ -101,12 +103,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             queryWrapper.like("user_name",userQuery.getUserName());
         }
         page=this.baseMapper.selectPage(page,queryWrapper);
-        Map<String,Object> map =new HashMap<String,Object>();
-        map.put("code",0);
-        map.put("msg","");
-        map.put("data",page.getRecords());
-        map.put("count",page.getTotal());
-        return map;
+
+        return PageResultUtil.getResult(page.getTotal(),page.getRecords());
     }
 
     @Override
@@ -117,6 +115,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
        user.setPassword(passwordEncoder.encode("123456"));
        user.setIsDel(0);
        AssertUtil.isTrue(!this.save(user),"用户记录添加失败");
+       User temp =this.findUserByUserName(user.getUsername());
+       relationUserRole(temp.getId(),user.getRoleIds());
+    }
+
+    private void relationUserRole(Integer id, String roleId) {
+        int count =userRoleService.count(new QueryWrapper<UserRole>().eq("user_id",id));
+        if (count>0){
+            AssertUtil.isTrue(userRoleService.remove(new QueryWrapper<UserRole>().eq("user_id",id)),"角色记录分配失败");
+        }
+        if(StringUtil.isNotEmpty(roleId)){
+            List<UserRole> us =new ArrayList<>();
+            for (String s : roleId.split(",")) {
+                UserRole userRole =new UserRole();
+                userRole.setUserId(id);
+                userRole.setRoleId(Integer.parseInt(s));
+                us.add(userRole);
+            }
+            AssertUtil.isTrue(!(userRoleService.saveBatch(us)),"角色记录分配失败");
+        }
     }
 
     @Override
@@ -124,7 +141,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public void updateUser(User user) {
         AssertUtil.isTrue(StringUtils.isBlank(user.getUsername()),"用户名不能为空");
         User temp =this.findUserByUserName(user.getUsername());
-        AssertUtil.isTrue(null!=temp && temp.getId().equals(user.getId()),"用户名已存在");
+        AssertUtil.isTrue(null!=temp && !(temp.getId().equals(user.getId())),"用户名已存在");
+        relationUserRole(user.getId(),user.getRoleIds());
         AssertUtil.isTrue(!(this.updateById(user)),"用户记录更新失败");
     }
 
@@ -132,6 +150,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public void deleteUser(Integer[] ids) {
         AssertUtil.isTrue(null==ids ||ids.length==0,"请选择要删除的用户");
+        int count =userRoleService.count(new QueryWrapper<UserRole>().in("user_id",ids));
+        if (count>0){
+        AssertUtil.isTrue(!(userRoleService.remove(new QueryWrapper<UserRole>().in("user_id", Arrays.asList(ids)))),"用户记录删除失败");
+        }
         List<User> users =new ArrayList<User>();
         for (Integer id : ids) {
             User temp =this.getById(id);

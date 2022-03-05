@@ -8,6 +8,7 @@ import com.lzj.admin.query.UserQuery;
 import com.lzj.admin.service.IUserService;
 import com.lzj.admin.utils.AssertUtil;
 import com.sun.xml.internal.ws.resources.HttpserverMessages;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -72,6 +73,7 @@ public class UserController {
         return "user/setting";
     }
     @RequestMapping("index")
+    @PreAuthorize("hasAnyAuthority('1010')")
     public String user(){
         return "user/user";
     }
@@ -100,7 +102,6 @@ public class UserController {
         }
     }
 
-
     /**
      * 用户密码更新页
      * @return
@@ -109,10 +110,6 @@ public class UserController {
     public String password(){
         return "user/password";
     }
-
-
-
-
     /**
      * 用户密码更新
 
@@ -124,8 +121,6 @@ public class UserController {
     @RequestMapping("updateUserPassword")
     @ResponseBody
     public RespBean updateUserPassword(Principal principal, String oldPassword, String newPassword, String confirmPassword){
-
-
             userService.updateUserPassword(principal.getName(),oldPassword,newPassword,confirmPassword);
             return RespBean.success("用户密码更新成功");
 
@@ -137,13 +132,14 @@ public class UserController {
      * @return
      */
     @RequestMapping("list")
+    @PreAuthorize("hasAnyAuthority('101003')")
     @ResponseBody
     public Map<String,Object> userList(UserQuery userQuery){
     return userService.userLlist(userQuery);
     }
 
     /**
-     * 用户保存和编辑
+     * 用户新增和编辑
      * @param id
      * @param model
      * @return
