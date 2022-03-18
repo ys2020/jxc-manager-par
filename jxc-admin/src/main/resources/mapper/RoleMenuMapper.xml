@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzj.admin.mapper.RoleMenuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.lzj.admin.pojo.RoleMenu">
+        <id column="id" property="id" />
+        <result column="menu_id" property="menuId" />
+        <result column="role_id" property="roleId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, menu_id, role_id
+    </sql>
+    <select id="midsByroleId" resultType="java.lang.Integer">
+        select
+            menu_id
+        from
+            t_role_menu
+        where role_id =#{id}
+    </select>
+
+    <select id="findAuthoritiesByroleName" resultType="java.lang.String">
+        select
+            distinct m.acl_value
+        from t_role_menu rm
+                 left join t_menu m on rm.menu_id=m.id
+                 left join t_role r on rm.role_id=r.id
+        where m.is_del=0
+             and r.name in
+            <choose>
+               <when test="list!=null and list.size()>0">
+                   <foreach collection="list" item="roleName" open="(" separator="," close=")">
+                       #{roleName}
+                   </foreach>
+               </when>
+            <otherwise>
+                ('普通员工')
+            </otherwise>
+            </choose>
+    </select>
+
+
+</mapper>
