@@ -140,10 +140,13 @@
                                 <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-12" data-tab="customer/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 客户管理</span></a>
                             </dd>
                             <dd class="">
-                                <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-13" data-tab="goods/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 商品管理</span></a>
+                                <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-14" data-tab="goods/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 商品管理</span></a>
                             </dd>
                             <dd class="">
-                                <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-13" data-tab="goodsType/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 商品分类管理</span></a>
+                                <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-15" data-tab="goodsType/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 商品分类管理</span></a>
+                            </dd>
+                            <dd class="">
+                                <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-16" data-tab="goodsUnit/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 商品单位管理</span></a>
                             </dd>
                             <dd class="">
                                 <a href="javascript:;" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-13" data-tab="stock/index" target="_self"><i class="fa fa-tachometer"></i><span class="layui-left-nav"> 期初库存</span></a>
